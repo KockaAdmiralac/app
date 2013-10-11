@@ -1630,7 +1630,7 @@ class Sanitizer {
 		}
 
 		$block = array_merge( $common, array( 'align' ) );
-		$tablealign = array( 'align', 'char', 'charoff', 'valign' );
+		$tablealign = array( 'align', 'valign' );
 		$tablecell = array( 'abbr',
 		                    'axis',
 		                    'headers',
@@ -1649,7 +1649,7 @@ class Sanitizer {
 			# 7.5.4
 			'div'        => $block,
 			'center'     => $common, # deprecated
-			'span'       => $block,	//$block, # ??
+			'span'       => $common,
 
 			# 7.5.5
 			'h1'         => $block,
@@ -1663,7 +1663,7 @@ class Sanitizer {
 			# address
 
 			# 8.2.4
-			# bdo
+			'bdo'        => $common,
 
 			# 9.2.1
 			'em'         => $common,
@@ -1682,7 +1682,7 @@ class Sanitizer {
 
 			# 9.2.2
 			'blockquote' => array_merge( $common, array( 'cite' ) ),
-			# q
+			'q'          => array_merge( $common, array( 'cite' ) ),
 
 			# 9.2.3
 			'sub'        => $common,
@@ -1692,7 +1692,7 @@ class Sanitizer {
 			'p'          => $block,
 
 			# 9.3.2
-			'br'         => array( 'id', 'class', 'title', 'style', 'clear' ),
+			'br'         => array_merge( $common, array( 'clear' ) ),
 
 			# 9.3.4
 			'pre'        => array_merge( $common, array( 'width' ) ),
@@ -1719,16 +1719,16 @@ class Sanitizer {
 								) ),
 
 			# 11.2.2
-			'caption'    => array_merge( $common, array( 'align' ) ),
+			'caption'    => $block,
 
 			# 11.2.3
-			'thead'      => array_merge( $common, $tablealign ),
-			'tfoot'      => array_merge( $common, $tablealign ),
-			'tbody'      => array_merge( $common, $tablealign ),
+			'thead'      => $common,
+			'tfoot'      => $common,
+			'tbody'      => $common,
 
 			# 11.2.4
-			'colgroup'   => array_merge( $common, array( 'span', 'width' ), $tablealign ),
-			'col'        => array_merge( $common, array( 'span', 'width' ), $tablealign ),
+			'colgroup'   => array_merge( $common, array( 'span' ) ),
+			'col'        => array_merge( $common, array( 'span' ) ),
 
 			# 11.2.5
 			'tr'         => array_merge( $common, array( 'bgcolor' ), $tablealign ),
@@ -1761,7 +1761,7 @@ class Sanitizer {
 			# basefont
 
 			# 15.3
-			'hr'         => array_merge( $common, array( 'noshade', 'size', 'width' ) ),
+			'hr'         => array_merge( $common, array( 'width' ) ),
 
 			# XHTML Ruby annotation text module, simple ruby only.
 			# http://www.w3c.org/TR/ruby/
