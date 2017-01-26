@@ -61,6 +61,17 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 					};
 				}
 			},
+			adapterIndexExchangeEmpty: {
+				getName: function () {
+					return 'indexExchange';
+				},
+				isEnabled: function () {
+					return true;
+				},
+				getSlots: function () {
+					return {};
+				}
+			},
 			adapterIndexExchangeDisabled: {
 				getName: function () {
 					return 'indexExchange';
@@ -81,7 +92,7 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 			},
 			correctIndexExchangeBid: {
 				bidder: 'indexExchange',
-				pbMg: '1.00',
+				pbAg: '1.00',
 				getStatusCode: function () {
 					return 1;
 				},
@@ -91,7 +102,7 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 			},
 			correctAppNexusBid: {
 				bidder: 'appnexus',
-				pbMg: '0.00',
+				pbAg: '0.00',
 				getStatusCode: function () {
 					return 1;
 				},
@@ -102,7 +113,7 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 			completeAppNexusBid: {
 				bidder: 'appnexus',
 				complete: true,
-				pbMg: '5.00',
+				pbAg: '5.00',
 				getStatusCode: function () {
 					return 1;
 				},
@@ -118,20 +129,26 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 			},
 			pbjs: {
 				getBidResponses: noop
+			},
+			adaptersRegistry: {
+				getAdapters: noop
 			}
 		},
 		module,
-		getBidResponsesSpy;
+		getBidResponsesSpy,
+		getAdaptersSpy;
 
 	function getModule() {
 		return modules['ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker'](
 			mocks.adTracker,
+			mocks.adaptersRegistry,
 			mocks.timeBuckets,
 			mocks.prebid
 		);
 	}
 
 	beforeEach(function () {
+		getAdaptersSpy = spyOn(mocks.adaptersRegistry, 'getAdapters');
 		module = getModule();
 		getBidResponsesSpy = spyOn(mocks.pbjs, 'getBidResponses');
 	});
@@ -183,8 +200,23 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 				}
 			},
 			message: 'disabled adapters are not added'
+		}, {
+			skin: 'oasis',
+			adapters: [
+				mocks.adapterAppNexus,
+				mocks.adapterIndexExchangeEmpty
+			],
+			expected: {
+				appnexus: {
+					TOP_LEADERBOARD: 'NO_RESPONSE',
+					TOP_RIGHT_BOXAD: 'NO_RESPONSE'
+				},
+				indexExchange: {}
+			},
+			message: 'disabled adapters are not added'
 		}].forEach(function (testCase) {
-			var result = module.setupPerformanceMap(testCase.skin, testCase.adapters);
+			getAdaptersSpy.and.returnValue(testCase.adapters);
+			var result = module.setupPerformanceMap(testCase.skin);
 
 			expect(result).toEqual(testCase.expected, testCase.message);
 		});
@@ -299,37 +331,6 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 				}
 			},
 			message: 'if no bids for one bidder are returned map stays untouched'
-		}, {
-			performanceMap: {
-				appnexus: {
-					TOP_LEADERBOARD: 'NO_RESPONSE',
-					TOP_RIGHT_BOXAD: 'NO_RESPONSE'
-				},
-				indexExchange: {
-					TOP_LEADERBOARD: 'NO_RESPONSE'
-				}
-			},
-			allBids: {
-				TOP_LEADERBOARD: {
-					bids: [
-						mocks.completeAppNexusBid
-					]
-				}, TOP_RIGHT_BOXAD: {
-					bids: [
-						mocks.correctAppNexusBid
-					]
-				}
-			},
-			expected: {
-				appnexus: {
-					TOP_LEADERBOARD: 'USED;0-1.0',
-					TOP_RIGHT_BOXAD: '100x100;0.00;0-1.0'
-				},
-				indexExchange: {
-					TOP_LEADERBOARD: 'NO_RESPONSE'
-				}
-			},
-			message: 'rendered bid is tracked as used'
 		}].forEach(function (testCase) {
 			var result;
 
@@ -371,7 +372,7 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 			},
 			expected: undefined,
 			message: 'Return undefined when slot is not supported by adapter'
-		}].forEach(function(testCase) {
+		}].forEach(function (testCase) {
 			var module = getModule(),
 				result;
 
@@ -429,7 +430,7 @@ describe('ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker', function
 				}
 			},
 			expected: ['appnexus/lookup_error/direct', 'TOP_RIGHT_BOXAD', 0, 'nodata']
-		}].forEach(function(testCase) {
+		}].forEach(function (testCase) {
 			var module = getModule(),
 				expectResult;
 

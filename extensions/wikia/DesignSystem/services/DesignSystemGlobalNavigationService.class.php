@@ -33,6 +33,10 @@ class DesignSystemGlobalNavigationService extends WikiaService {
 		$this->setVal( 'model', $this->getVal( 'model' ) );
 	}
 
+	public function partnerSlot() {
+		$this->setVal( 'model', $this->getVal( 'model' ) );
+	}
+
 	public function linkAuthentication() {
 		$model = $this->getVal( 'model' );
 		$messageKey = $model['title']['key'];
@@ -50,7 +54,6 @@ class DesignSystemGlobalNavigationService extends WikiaService {
 				break;
 			case 'global-navigation-user-sign-out':
 				$classNames = 'wds-global-navigation__dropdown-link';
-				$href = wfAppendQuery( $href, wfGetReturntoParam() );
 		}
 
 		$this->setVal( 'model', $model );

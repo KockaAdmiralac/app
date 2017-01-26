@@ -2,74 +2,88 @@
 define('ext.wikia.adEngine.lookup.prebid', [
 	'ext.wikia.adEngine.adContext',
 	'ext.wikia.adEngine.lookup.prebid.adaptersPerformanceTracker',
-	'ext.wikia.adEngine.lookup.prebid.adapters.appnexus',
-	'ext.wikia.adEngine.lookup.prebid.adapters.indexExchange',
+	'ext.wikia.adEngine.lookup.prebid.adaptersPricesTracker',
+	'ext.wikia.adEngine.lookup.prebid.adaptersRegistry',
 	'ext.wikia.adEngine.lookup.prebid.adapters.wikia',
 	'ext.wikia.adEngine.lookup.prebid.prebidHelper',
 	'ext.wikia.adEngine.lookup.lookupFactory',
 	'wikia.document',
 	'wikia.window'
-], function (adContext, adaptersTracker, appnexus, index, wikiaAdapter, helper, factory, doc, win) {
+], function (adContext, performanceTracker, pricesTracker, adaptersRegistry, wikiaAdapter, helper, factory, doc, win) {
 	'use strict';
 
-	var adapters = [
-			appnexus,
-			index
-		],
-		adUnits = [],
+	var adUnits = [],
 		biddersPerformanceMap = {},
-		autoPriceGranularity = 'auto';
+		autoPriceGranularity = 'auto',
+		prebidLoaded = false;
 
 	function call(skin, onResponse) {
-		var prebid = doc.createElement('script'),
+		var prebid, node;
+
+		if (!prebidLoaded) {
+			prebid = doc.createElement('script');
 			node = doc.getElementsByTagName('script')[0];
 
-		if (wikiaAdapter.isEnabled()) {
-			adapters.push(wikiaAdapter);
-			win.pbjs.que.push(function () {
-				win.pbjs.registerBidAdapter(wikiaAdapter.create, 'wikia');
-			});
-		}
+			if (wikiaAdapter.isEnabled()) {
+				adaptersRegistry.push(wikiaAdapter);
+				win.pbjs.que.push(function () {
+					win.pbjs.registerBidAdapter(wikiaAdapter.create, 'wikia');
+				});
+			}
 
-		biddersPerformanceMap = adaptersTracker.setupPerformanceMap(skin, adapters);
-		adUnits = helper.setupAdUnits(adapters, skin);
-
-		if (adUnits.length > 0) {
 			prebid.async = true;
 			prebid.type = 'text/javascript';
 			prebid.src = adContext.getContext().opts.prebidBidderUrl || '//acdn.adnxs.com/prebid/prebid.js';
-
 			node.parentNode.insertBefore(prebid, node);
+		}
 
-			win.pbjs.que.push(function () {
+		biddersPerformanceMap = performanceTracker.setupPerformanceMap(skin);
+		adUnits = helper.setupAdUnits(skin);
 
-				win.pbjs.setPriceGranularity(autoPriceGranularity);
-				win.pbjs.addAdUnits(adUnits);
+		if (adUnits.length > 0) {
+			if (!prebidLoaded) {
+				win.pbjs.que.push(function () {
+					win.pbjs.setPriceGranularity(autoPriceGranularity);
+					win.pbjs.addAdUnits(adUnits);
+				});
+			}
+
+			win.pbjs.que.push(function() {
+
+				//@TODO remove two lines below when https://github.com/prebid/Prebid.js/issues/772 is fixed and prebid is updated
+				win.pbjs._bidsReceived = [];
+				win.pbjs._winningBids = [];
 
 				win.pbjs.requestBids({
 					bidsBackHandler: onResponse
 				});
 			});
 		}
+
+		prebidLoaded = true;
 	}
 
 	function calculatePrices() {
-		biddersPerformanceMap = adaptersTracker.updatePerformanceMap(biddersPerformanceMap);
+		biddersPerformanceMap = performanceTracker.updatePerformanceMap(biddersPerformanceMap);
 	}
 
 	function trackAdaptersOnLookupEnd() {
-		biddersPerformanceMap = adaptersTracker.updatePerformanceMap(biddersPerformanceMap);
+		var adapters = adaptersRegistry.getAdapters();
+
+		biddersPerformanceMap = performanceTracker.updatePerformanceMap(biddersPerformanceMap);
 
 		adapters.forEach(function (adapter) {
-			adaptersTracker.trackBidderOnLookupEnd(adapter, biddersPerformanceMap);
+			performanceTracker.trackBidderOnLookupEnd(adapter, biddersPerformanceMap);
 		});
 	}
 
 	function trackAdaptersSlotState(providerName, slotName) {
-		biddersPerformanceMap = adaptersTracker.updatePerformanceMap(biddersPerformanceMap);
+		var adapters = adaptersRegistry.getAdapters();
+
+		biddersPerformanceMap = performanceTracker.updatePerformanceMap(biddersPerformanceMap);
 
 		adapters.forEach(function (adapter) {
-			adaptersTracker.trackBidderSlotState(adapter, slotName, providerName, biddersPerformanceMap);
+			performanceTracker.trackBidderSlotState(adapter, slotName, providerName, biddersPerformanceMap);
 		});
 	}
 
@@ -80,27 +94,17 @@ define('ext.wikia.adEngine.lookup.prebid', [
 	}
 
 	function getSlotParams(slotName) {
-		var bidResponses,
-			params,
-			winner;
+		var params;
 
 		if (win.pbjs && typeof win.pbjs.getAdserverTargetingForAdUnitCode === 'function') {
 			params = win.pbjs.getAdserverTargetingForAdUnitCode(slotName) || {};
-
-			if (params.hb_adid) {
-				bidResponses = win.pbjs.getBidResponsesForAdUnitCode(slotName);
-				winner = bidResponses.bids.find(function (bid) {
-					return bid.adId === params.hb_adid;
-				});
-
-				if (winner && winner.complete) {
-					return {};
-				}
-			}
-
 		}
 
 		return params || {};
+	}
+
+	function getBestSlotPrice(slotName) {
+		return pricesTracker.getSlotBestPrice(slotName);
 	}
 
 	return factory.create({
@@ -110,6 +114,7 @@ define('ext.wikia.adEngine.lookup.prebid', [
 		calculatePrices: calculatePrices,
 		isSlotSupported: isSlotSupported,
 		getSlotParams: getSlotParams,
+		getBestSlotPrice: getBestSlotPrice,
 		trackAdaptersOnLookupEnd: trackAdaptersOnLookupEnd,
 		trackAdaptersSlotState: trackAdaptersSlotState
 	});
