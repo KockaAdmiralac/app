@@ -75,7 +75,15 @@ class ApiOptions extends ApiBase {
 		$prefs = Preferences::getPreferences( $user, $this->getContext() );
 
 		foreach ( $changes as $key => $value ) {
-			if ( empty( $prefs[$key] ) ) {
+			if ( substr( $key, 0, 7 ) === 'userjs-' ) {
+				if ( str( $key ) > 255 ) {
+					$validation = 'key too long (no more than 255 bytes allowed)'
+				} elseif ( preg_match( '/[^a-zA-Z0-9_-]/', $key ) !== 0 ) {
+					$validation = 'invalid characters in key (only a-z, A-Z, 0-9, _, and - are allowed)'
+				} else {
+					$validation = true;
+				}
+			} elseif ( empty( $prefs[$key] ) ) {
 				// This is not a default preference and cannot be modified by this API
 				$validation = 'not a valid preference';
 			} else {
