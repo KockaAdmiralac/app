@@ -324,7 +324,7 @@ class User implements JsonSerializable {
 	 * @return Bool false if the ID does not exist, true otherwise
 	 */
 	public function loadFromId() {
-		global $wgMemc, $wgSharedDB; # Wikia
+		global $wgMemc;
 		if ( $this->mId == 0 ) {
 			$this->loadDefaults();
 			return false;
@@ -338,29 +338,27 @@ class User implements JsonSerializable {
 			$data = false;
 		}
 
-		$isExpired = false;
-		if( !empty( $wgSharedDB ) ) {
-			# Wikia
-			/*
-			 * This code is responsible for re-invalidate user object data from database
-			 * instead of memcache if user preferences had been changed on another wiki
-			 */
-			$isExpired = true;
-			if(!empty($data)) {
-				$_key = self::getUserTouchedKey( $this->mId );
-				$_touched = $wgMemc->get( $_key );
-				if( empty( $_touched ) ) {
-					$wgMemc->set( $_key, $data['mTouched'] );
-					wfDebug( "Shared user: miss on shared user_touched\n" );
-				} else if( $_touched <= $data['mTouched'] ) {
-					$isExpired = false;
-				}
-				else {
-					wfDebug( "Shared user: invalidating local user cache due to shared user_touched\n" );
-				}
+		# Wikia
+		/*
+		 * This code is responsible for re-invalidate user object data from database
+		 * instead of memcache if user preferences had been changed on another wiki
+		 */
+		$isExpired = true;
+		if(!empty($data)) {
+			$_key = self::getUserTouchedKey( $this->mId );
+			$_touched = $wgMemc->get( $_key );
+			if( empty( $_touched ) ) {
+				$wgMemc->set( $_key, $data['mTouched'] );
+				wfDebug( "Shared user: miss on shared user_touched\n" );
+			} else if( $_touched <= $data['mTouched'] ) {
+				$isExpired = false;
 			}
-			# /Wikia
+			else {
+				wfDebug( "Shared user: invalidating local user cache due to shared user_touched\n" );
+			}
 		}
+		# /Wikia
+
 		if ( !$data || $isExpired ) { # Wikia
 			wfDebug( "User: cache miss for user {$this->mId}\n" );
 			# Load from DB
@@ -592,11 +590,15 @@ class User implements JsonSerializable {
 	}
 
 	/**
+	 * Return user ID to user name mapping
 	 *
-	 * @param $ids Array User IDs
-	 * @return Array User ID to User name mapping
+	 * Please note that this method is NOT cached!
+	 *
+	 * @param array $ids User IDs
+	 * @param int $source DB_SLAVE / DB_MASTER
+	 * @return array User ID to User name mapping
 	 */
-	public static function whoAre( Array $ids, $source = DB_SLAVE ): Array {
+	public static function whoAre( Array $ids, $source = DB_SLAVE ): array {
 		global $wgExternalSharedDB;
 
 		if ( $ids == [] ) {
@@ -604,6 +606,17 @@ class User implements JsonSerializable {
 		}
 
 		$ids = array_unique( $ids, SORT_NUMERIC );
+
+		if ( count( $ids ) === 1 ) {
+			// SUS-3219 - fall back to well-cached User::whoIs when we want to resolve a single user ID
+			$userId = $ids[0];
+
+			return [
+				// Add the name used to indicate anonymous users.
+				0 => wfMessage( 'oasis-anon-user' )->escaped(),
+				$userId => self::whoIs( $userId )
+			];
+		}
 
 		$sdb = wfGetDB( $source, [], $wgExternalSharedDB );
 		$res = $sdb->select(
@@ -637,8 +650,8 @@ class User implements JsonSerializable {
 	 * @return String|false The corresponding user's real name
 	 */
 	public static function whoIsReal( $id ) {
-		$dbr = wfGetDB( DB_SLAVE );
-		return $dbr->selectField( 'user', 'user_real_name', array( 'user_id' => $id ), __METHOD__ );
+		// Wikia change - @see SUS-1015
+		return self::newFromId( $id )->getRealName();
 	}
 
 	/**
@@ -659,7 +672,8 @@ class User implements JsonSerializable {
 		}
 
 		if ( isset( self::$idCacheByName[$name] ) ) {
-			return (int) self::$idCacheByName[$name];
+			// SUS-2981 - return NULL when a user is not found
+			return ( (int) self::$idCacheByName[$name] ) ?: null;
 		}
 
 		// SUS-2945 | this method makes ~32mm queries every day
@@ -670,7 +684,8 @@ class User implements JsonSerializable {
 		$cachedId = $wgMemc->get( $key );
 
 		if ( is_numeric( $cachedId ) ) {
-			return (int) self::$idCacheByName[$name] = $cachedId;
+			// SUS-2981 - return NULL when a user is not found
+			return ( (int) self::$idCacheByName[$name] = $cachedId ) ?: null;
 		}
 
 		// not in cache, query the database
@@ -683,13 +698,14 @@ class User implements JsonSerializable {
 		}
 
 		if ( $s === false ) {
-			$result = null;
+			// SUS-2981 - set cached value to zero when a user is not found, setting a memcache entry to NULL makes no sense
+			$result = 0;
 		} else {
-			$result = (int) $s->user_id;
-
-			// SUS-2945 - only store when there's a match
-			$wgMemc->set( $key, $result, WikiaResponse::CACHE_LONG );
+			$result = (int)$s->user_id;
 		}
+
+		// SUS-2981 - cache even when a given user is not found (set cache entry to 0)
+		$wgMemc->set( $key, $result, WikiaResponse::CACHE_LONG );
 
 		self::$idCacheByName[$name] = $result;
 
@@ -697,7 +713,7 @@ class User implements JsonSerializable {
 			self::$idCacheByName = array();
 		}
 
-		return $result;
+		return $result ?: null;
 	}
 
 	/**
@@ -1334,7 +1350,7 @@ class User implements JsonSerializable {
 		}
 
 		# User/IP blocking
-		$block = Block::newFromTarget( $this->getName(), $ip, !$bFromSlave );
+		$block = Block::newFromTarget( $this, $ip, !$bFromSlave );
 
 		# Proxy blocking
 		if ( !$block instanceof Block && $ip !== null && !$this->isAllowed( 'proxyunbannable' )
@@ -1774,6 +1790,19 @@ class User implements JsonSerializable {
 	}
 
 	/**
+	 * SUS-3250: Just set the user ID, without any side-effects
+	 * @see User::setId() for bad design
+	 * @param $userId
+	 */
+	public function setUserId( $userId ) {
+		$this->mId = $userId;
+
+		// make sure user will be loaded from user id
+		$this->mFrom = 'id';
+		$this->setItemLoaded( 'id' );
+	}
+
+	/**
 	 * Get the user name, or the IP of an anonymous user
 	 * @return String User's name or IP address
 	 */
@@ -2018,17 +2047,16 @@ class User implements JsonSerializable {
 	private function clearSharedCache() {
 		$this->load();
 		if( $this->mId ) {
-			global $wgMemc, $wgSharedDB; # Wikia
+			global $wgMemc;
 			$wgMemc->delete( $this->getCacheKey() );
 			$wgMemc->delete( self::getCacheKeyByName( $this->getName() ) ); // SUS-2945
 			$this->userPreferences()->deleteFromCache( $this->getId() );
 			// Wikia: and save updated user data in the cache to avoid memcache miss and DB query
 			$this->saveToCache();
-			if( !empty( $wgSharedDB ) ) {
-				$memckey = self::getUserTouchedKey( $this->mId );
-				$wgMemc->set( $memckey, $this->mTouched );
-				wfDebug( "Shared user: updating shared user_touched\n" );
-			}
+
+			$memckey = self::getUserTouchedKey( $this->mId );
+			$wgMemc->set( $memckey, $this->mTouched );
+			wfDebug( "Shared user: updating shared user_touched\n" );
 		}
 	}
 
@@ -3227,22 +3255,6 @@ class User implements JsonSerializable {
 	}
 
 	/**
-	 * If only this user's username is known, and it exists, return the user ID.
-	 * @return Int
-	 */
-	public function idForName( $fromMaster = false ) {
-		$s = trim( $this->getName() );
-		if ( $s === '' ) return 0;
-
-		$dbr = ( $fromMaster ) ? wfGetDB( DB_MASTER ) : wfGetDB( DB_SLAVE );
-		$id = $dbr->selectField( 'user', 'user_id', array( 'user_name' => $s ), __METHOD__ );
-		if ( $id === false ) {
-			$id = 0;
-		}
-		return $id;
-	}
-
-	/**
 	 * Add a user to the database, return the user object
 	 *
 	 * @param $name String Username to add
@@ -3303,7 +3315,11 @@ class User implements JsonSerializable {
 	 */
 	public function addToDatabase() {
 		$this->load();
-		$dbw = wfGetDB( DB_MASTER );
+
+		// wikia change
+		global $wgExternalSharedDB;
+		$dbw = wfGetDB( DB_MASTER, [], $wgExternalSharedDB );
+
 		$seqVal = $dbw->nextSequenceValue( 'user_user_id_seq' );
 		$dbw->insert( 'user',
 			array(
@@ -3316,6 +3332,7 @@ class User implements JsonSerializable {
 				'user_registration' => $dbw->timestamp( $this->mRegistration ),
 				'user_birthdate' => $this->mBirthDate, // Wikia. Added to reflect our user table layout.
 				'user_editcount' => 0,
+				'user_options' => '', // Wikia. Field 'user_options' doesn't have a default value
 			), __METHOD__
 		);
 		$this->mId = $dbw->insertId();
@@ -3482,7 +3499,7 @@ class User implements JsonSerializable {
 	/**
 	 * Check to see if the given clear-text password is one of the accepted passwords
 	 * @param $password String: user password.
-	 * @return Boolean: True if the given password is correct, otherwise False.
+	 * @return AuthResult
 	 */
 	public function checkPassword( $password, &$errorMessageKey = null ) {
 		$this->load();
@@ -3877,7 +3894,7 @@ class User implements JsonSerializable {
 		global $wgEnableNewAuthModal;
 
 		if ( $wgEnableNewAuthModal ) {
-			return WikiFactory::getLocalEnvURL( "http://www.wikia.com/confirm-email?token=$token" );
+			return WikiFactory::getLocalEnvURL( "https://www.wikia.com/confirm-email?token=$token" );
 		}
 
 		// Hack to bypass localization of 'Special:'
@@ -4511,6 +4528,16 @@ class User implements JsonSerializable {
 	}
 
 	/**
+	 * Whether this user is a bot (either globally or on this wiki) or not
+	 * @return bool
+	 */
+	public function isBot() {
+		return self::permissionsService()->isInGroup( $this, 'bot' )
+			||
+			self::permissionsService()->isInGroup( $this, 'bot-global' );
+	}
+
+	/**
 	 * Get the localized descriptive name for a group, if it exists
 	 *
 	 * @param $group String Internal group name
@@ -4614,25 +4641,13 @@ class User implements JsonSerializable {
 	 * @return string
 	 */
 	public static function getUsername( int $userId, string $name ) : string {
-		if ( !empty( $userId ) ) {
-			$dbName = static::whoIs( $userId );
-
-			// we currently have 500k mismatches logged every 24h
-			// cache added in User::whoIs should improve the situation here as we'll use the shared user storage
-			// instead of per-cluster copy
-			if( $dbName !== $name ) {
-				WikiaLogger::instance()->warning( "Default name different than lookup", [
-					"user_id" => $userId,
-					// SUS-2008, always log username_db as string
-					"username_db" => $dbName ?: '',
-					"username_default" => $name,
-				] );
-			}
-
-			return $dbName ?: $name;
-		}
-		// this covers anons ($userId = 0), just fall back to the second method argument
-		return $name;
+		return ( $userId > 0 )
+			?
+			// logged-in - get the username by user ID
+			static::whoIs( $userId )
+			:
+			// anons - return the second argument - an IP address
+			$name;
 	}
 
 	/**

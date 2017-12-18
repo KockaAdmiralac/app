@@ -380,7 +380,6 @@ CREATE TABLE `messages_text` (
   `msg_removed` tinyint(4) NOT NULL DEFAULT '0',
   `msg_expire` datetime DEFAULT NULL,
   `msg_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `msg_recipient_name` varchar(255) DEFAULT NULL,
   `msg_recipient_user_id` int(5) unsigned DEFAULT NULL,
   `msg_group_name` varchar(255) DEFAULT NULL,
   `msg_wiki_name` varchar(255) DEFAULT NULL,
@@ -535,16 +534,6 @@ CREATE TABLE `text` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
--- Table structure for table `three_word_spam`
---
-
-DROP TABLE IF EXISTS `three_word_spam`;
-CREATE TABLE `three_word_spam` (
-  `dbname` varchar(64) NOT NULL,
-  PRIMARY KEY (`dbname`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
---
 -- Table structure for table `user`
 --
 
@@ -677,4 +666,4 @@ CREATE TABLE `wikia_tasks_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- Dump completed on 2017-10-26 13:34:32
+-- Dump completed on 2017-12-07 11:39:18

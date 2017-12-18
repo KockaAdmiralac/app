@@ -54,7 +54,7 @@ CREATE TABLE `events_local_users` (
   `editdate` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `last_revision` int(11) NOT NULL DEFAULT '0',
   `cnt_groups` smallint(4) NOT NULL DEFAULT '0',
-  `single_group` char(25) NOT NULL DEFAULT '',
+  `single_group` varchar(255) NOT NULL DEFAULT '',
   `all_groups` mediumtext NOT NULL,
   `user_is_blocked` tinyint(1) DEFAULT '0',
   `user_is_closed` tinyint(1) DEFAULT '0',
@@ -111,6 +111,7 @@ CREATE TABLE `phalanx_stats` (
   `ps_blocker_id` int(8) unsigned NOT NULL,
   `ps_blocker_type` smallint(1) unsigned NOT NULL,
   `ps_timestamp` binary(14) NOT NULL DEFAULT '\0\0\0\0\0\0\0\0\0\0\0\0\0\0',
+  `ps_blocked_user_id` int(11) DEFAULT NULL,
   `ps_blocked_user` varchar(255) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL DEFAULT '',
   `ps_wiki_id` int(9) NOT NULL,
   `ps_blocker_hit` smallint(1) unsigned NOT NULL,
@@ -132,4 +133,4 @@ CREATE TABLE `script_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
--- Dump completed on 2017-10-26 13:34:31
+-- Dump completed on 2017-12-04 11:45:53

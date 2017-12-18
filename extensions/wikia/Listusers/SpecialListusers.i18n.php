@@ -10,8 +10,8 @@ $messages['en'] = array(
 	'listuserscount' => '<strong>$1</strong> users',
 	'listusersdetails' => 'Show',
 	'listusersnogroup' => 'No group',
+	'listuserbyname' => 'Find by a user name:',
 	'listusersallusers' => 'all users',
-	'listusersstartingtext' => 'Display users starting at:',
 	'listuserscontributed' => 'Contributed: ',
 	'listusers-1contribution' => '1 time or more',
 	'listusers-5contributions' => '5 times or more',
@@ -54,7 +54,6 @@ $messages['de'] = array(
 	'listusersdetails' => 'Zeige',
 	'listusersnogroup' => 'Keine Gruppe',
 	'listusersallusers' => 'alle Benutzer',
-	'listusersstartingtext' => 'Zeige Benutzer ab:',
 	'listuserscontributed' => 'Beiträge',
 	'listusers-1contribution' => '1 oder mehr',
 	'listusers-5contributions' => '5 oder mehr',
@@ -66,7 +65,7 @@ $messages['de'] = array(
 	'listusersnext' => 'nächste',
 	'listusersprevious' => 'vorherige',
 	'listusersnbrresult' => 'Anzahl Ergebnisse:',
-	'listusersrev-cnt' => 'Versionen (Bearbeitungen)',
+	'listusersrev-cnt' => 'Beiträge',
 	'listusers-edited' => 'Letzte Bearbeitung',
 	'listuserscontribs' => 'Beiträge',
 	'listusersoptions' => 'Optionen',
@@ -83,6 +82,7 @@ $messages['de'] = array(
 	'listusers-select-all' => 'Alles auswählen',
 	'listusersrecordspager' => '<!-- ??? missing qqq -->Zeige <strong>$1</strong> bis <strong>$2</strong> von <strong>$3</strong> Einträgen',
 	'listusers-desc' => 'Special list users',
+	'listusersstartingtext' => 'Zeige Benutzer ab:',
 );
 
 $messages['es'] = array(
@@ -93,7 +93,6 @@ $messages['es'] = array(
 	'listusersdetails' => 'Mostrar',
 	'listusersnogroup' => 'Sin grupo',
 	'listusersallusers' => 'todos los usuarios',
-	'listusersstartingtext' => 'Mostrar usuarios empezando por:',
 	'listuserscontributed' => 'Contribuyeron:',
 	'listusers-1contribution' => '1 vez o más',
 	'listusers-5contributions' => '5 veces o más',
@@ -122,6 +121,7 @@ $messages['es'] = array(
 	'listusers-desc' => 'Special list users',
 	'listusers-select-all' => 'Select all',
 	'listusers-deselect-all' => 'Deselect all',
+	'listusersstartingtext' => 'Mostrar usuarios empezando por:',
 );
 
 $messages['fa'] = array(
@@ -132,7 +132,6 @@ $messages['fa'] = array(
 	'listusersdetails' => 'نمایش',
 	'listusersnogroup' => 'بدون گروه',
 	'listusersallusers' => 'تمام کاربران',
-	'listusersstartingtext' => 'نمایش کاربران با شروع از:',
 	'listuserscontributed' => 'تعداد ویرایش‌ها:',
 	'listusers-1contribution' => 'یکی و بیشتر',
 	'listusers-5contributions' => '۵ تا و بیشتر',
@@ -185,12 +184,12 @@ $messages['fi'] = array(
 	'listusersprevious' => 'edellinen',
 	'listusersrev-cnt' => 'Korjaukset (muokkaukset)',
 	'listusersrights' => 'Oikeudet',
-	'listusersstartingtext' => 'Näytä käyttäjät alkaen:',
 	'listuserstitle' => 'Käyttäjälista',
 	'listusers-desc' => 'Special list users',
 	'listusersrecordspager' => 'Showing <strong>$1</strong> to <strong>$2</strong> of <strong>$3</strong> records',
 	'listuserscontribs' => 'Contribs',
 	'listusersblock' => 'Block',
+	'listusersstartingtext' => 'Näytä käyttäjät alkaen:',
 );
 
 $messages['fr'] = array(
@@ -201,7 +200,6 @@ $messages['fr'] = array(
 	'listusersdetails' => 'Afficher',
 	'listusersnogroup' => 'Sans groupe',
 	'listusersallusers' => 'tous les utilisateurs',
-	'listusersstartingtext' => 'Afficher les utilisateurs à partir de :',
 	'listuserscontributed' => 'Contributions',
 	'listusers-1contribution' => '1 ou plus',
 	'listusers-5contributions' => '5 ou plus',
@@ -230,6 +228,7 @@ $messages['fr'] = array(
 	'listusersoptions' => 'Options',
 	'listusersrights' => 'Rights',
 	'listusers-nonegroup' => 'none',
+	'listusersstartingtext' => 'Afficher les utilisateurs à partir de :',
 );
 
 $messages['it'] = array(
@@ -264,11 +263,11 @@ $messages['it'] = array(
 	'listusersrecordspager' => 'Elencati risultati da <strong>$1</strong> a <strong>$2</strong> di <strong>$3</strong> totali',
 	'listusersrev-cnt' => 'Modifiche',
 	'listusersrights' => 'Diritti',
-	'listusersstartingtext' => 'Mostra utenti iniziando da:',
 	'listuserstitle' => 'Lista degli utenti locali',
 	'listusers-desc' => 'Special list users',
 	'listusers-select-all' => 'Select all',
 	'listusers-deselect-all' => 'Deselect all',
+	'listusersstartingtext' => 'Mostra utenti iniziando da:',
 );
 
 $messages['ja'] = array(
@@ -279,7 +278,6 @@ $messages['ja'] = array(
 	'listusersdetails' => '表示',
 	'listusersnogroup' => 'グループなし',
 	'listusersallusers' => '全利用者',
-	'listusersstartingtext' => '次の文字列から始まる利用者を表示:',
 	'listuserscontributed' => '編集回数:',
 	'listusers-1contribution' => '1回以上',
 	'listusers-5contributions' => '5回以上',
@@ -304,10 +302,11 @@ $messages['ja'] = array(
 	'listusers-nonegroup' => 'なし',
 	'listusersrecordspager' => '<strong>$3</strong>件中<strong>$1</strong>から<strong>$2</strong>を表示',
 	'listusers-desc' => 'Special list users',
-	'listusersblock' => 'Block',
-	'listusersrights' => 'Rights',
-	'listusers-select-all' => 'Select all',
-	'listusers-deselect-all' => 'Deselect all',
+	'listusersblock' => 'ブロック',
+	'listusersrights' => '権限',
+	'listusers-select-all' => 'すべて選択',
+	'listusers-deselect-all' => 'すべて解除',
+	'listusersstartingtext' => '次の文字列から始まる利用者を表示:',
 );
 
 $messages['ko'] = array(
@@ -344,9 +343,9 @@ $messages['ko'] = array(
 	'listusersrecordspager' => '총 <strong>$3</strong>개 중 <strong>$1</strong>번부터 <strong>$2</strong>번까지의 결과',
 	'listusersrev-cnt' => '회',
 	'listusersrights' => '권한',
-	'listusersstartingtext' => '다음으로 시작하는 사용자 보이기:',
 	'listuserstitle' => '사용자 목록',
 	'listusers-desc' => 'Special list users',
+	'listusersstartingtext' => '다음으로 시작하는 사용자 보이기:',
 );
 
 $messages['lol'] = array(
@@ -359,7 +358,6 @@ $messages['lol'] = array(
 	'listusersdetails' => 'crwdns65444:0crwdne65444:0',
 	'listusersnogroup' => 'crwdns65445:0crwdne65445:0',
 	'listusersallusers' => 'crwdns65446:0crwdne65446:0',
-	'listusersstartingtext' => 'crwdns65447:0crwdne65447:0',
 	'listuserscontributed' => 'crwdns65448:0crwdne65448:0',
 	'listusers-1contribution' => 'crwdns65449:0crwdne65449:0',
 	'listusers-5contributions' => 'crwdns65450:0crwdne65450:0',
@@ -386,6 +384,7 @@ $messages['lol'] = array(
 	'listusers-nonegroup' => 'crwdns65472:0crwdne65472:0',
 	'listusers-select-all' => 'crwdns65473:0crwdne65473:0',
 	'listusers-deselect-all' => 'crwdns65474:0crwdne65474:0',
+	'listusersstartingtext' => 'crwdns65447:0crwdne65447:0',
 );
 
 $messages['nl'] = array(
@@ -398,7 +397,6 @@ $messages['nl'] = array(
 	'listusersdetails' => 'Show',
 	'listusersnogroup' => 'No group',
 	'listusersallusers' => 'all users',
-	'listusersstartingtext' => 'Display users starting at:',
 	'listuserscontributed' => 'Contributed: ',
 	'listusers-1contribution' => '1 time or more',
 	'listusers-5contributions' => '5 times or more',
@@ -425,6 +423,7 @@ $messages['nl'] = array(
 	'listusers-nonegroup' => 'none',
 	'listusers-select-all' => 'Select all',
 	'listusers-deselect-all' => 'Deselect all',
+	'listusersstartingtext' => 'Display users starting at:',
 );
 
 $messages['no'] = array(
@@ -458,7 +457,6 @@ $messages['no'] = array(
 	'listusersprevious' => 'forrige',
 	'listusersrev-cnt' => 'Revisjoner (endringer)',
 	'listusersrights' => 'Rettigheter',
-	'listusersstartingtext' => 'Vis bruker som starter på:',
 	'listuserstitle' => 'Brukerliste',
 );
 
@@ -492,13 +490,14 @@ $messages['pl'] = array(
 	'listusersrecordspager' => 'Wyniki od <strong>$1</strong> do <strong>$2</strong> z <strong>$3</strong>.',
 	'listusersrev-cnt' => 'Liczba edycji',
 	'listusersrights' => 'Uprawnienia',
-	'listusersstartingtext' => 'Użytkownicy z nazwą rozpoczynającą się od:',
 	'listuserstitle' => 'Lista użytkowników',
 	'listusers-desc' => 'Special list users',
 	'listuserscontribs' => 'Contribs',
 	'listusersblock' => 'Block',
 	'listusers-blocked' => 'Blocked',
 	'listusers-nonegroup' => 'none',
+	'listuserbyname' => 'Znajdź wg nazwy użytkownika:',
+	'listusersstartingtext' => 'Użytkownicy z nazwą rozpoczynającą się od:',
 );
 
 $messages['pt'] = array(
@@ -511,7 +510,6 @@ $messages['pt'] = array(
 	'listusersdetails' => 'Show',
 	'listusersnogroup' => 'No group',
 	'listusersallusers' => 'all users',
-	'listusersstartingtext' => 'Display users starting at:',
 	'listuserscontributed' => 'Contributed: ',
 	'listusers-1contribution' => '1 time or more',
 	'listusers-5contributions' => '5 times or more',
@@ -538,6 +536,7 @@ $messages['pt'] = array(
 	'listusers-nonegroup' => 'none',
 	'listusers-select-all' => 'Select all',
 	'listusers-deselect-all' => 'Deselect all',
+	'listusersstartingtext' => 'Display users starting at:',
 );
 
 $messages['ru'] = array(
@@ -574,9 +573,9 @@ $messages['ru'] = array(
 	'listusersrecordspager' => 'Показать с <strong>$1</strong> по <strong>$2</strong> из <strong>$3</strong> участников',
 	'listusersrev-cnt' => 'Правки',
 	'listusersrights' => 'Права',
-	'listusersstartingtext' => 'Показать участников начиная с:',
 	'listuserstitle' => 'Список участников',
 	'listusers-desc' => 'Special list users',
+	'listusersstartingtext' => 'Показать участников начиная с:',
 );
 
 $messages['uk'] = array(
@@ -619,8 +618,8 @@ $messages['vi'] = array(
 	'listusersrecordspager' => 'Hiển thị <strong>$1</strong> đến <strong>$2</strong> trong tổng số <strong>$3</strong> kết quả',
 	'listusersrev-cnt' => 'Sửa đổi',
 	'listusersrights' => 'Quyển',
-	'listusersstartingtext' => 'Hiển thị thành viên bắt đầu từ:',
 	'listuserstitle' => 'Danh sách thành viên',
+	'listusersstartingtext' => 'Hiển thị thành viên bắt đầu từ:',
 );
 
 $messages['zh-hans'] = array(
@@ -645,7 +644,6 @@ $messages['zh-hans'] = array(
 	'listusersnogroup' => '无用户组',
 	'listusersrecordspager' => '显示<strong>$3</strong>笔结果中的<strong>$1</strong>到<strong>$2</strong>',
 	'listusersrev-cnt' => '编辑数',
-	'listusersstartingtext' => '显示开头为某个字的用户:',
 	'listuserstitle' => '用户列表',
 	'listusers-desc' => 'Special list users',
 	'listusersfound' => 'Found <strong>$1</strong> users',
@@ -660,6 +658,7 @@ $messages['zh-hans'] = array(
 	'listusers-options' => 'Options',
 	'listusers-results' => 'Results',
 	'listusers-nonegroup' => 'none',
+	'listusersstartingtext' => '显示开头为某个字的用户:',
 );
 
 $messages['zh-hant'] = array(
@@ -684,7 +683,6 @@ $messages['zh-hant'] = array(
 	'listusersnogroup' => '無用戶組',
 	'listusersrecordspager' => '顯示<strong>$3</strong>筆结果中的<strong>$1</strong>到<strong>$2</strong>',
 	'listusersrev-cnt' => '編輯數',
-	'listusersstartingtext' => '顯示開頭為某個字的用戶:',
 	'listuserstitle' => '用戶列表',
 	'listusers-desc' => 'Special list users',
 	'listusersfound' => 'Found <strong>$1</strong> users',
@@ -699,5 +697,6 @@ $messages['zh-hant'] = array(
 	'listusers-options' => 'Options',
 	'listusers-results' => 'Results',
 	'listusers-nonegroup' => 'none',
+	'listusersstartingtext' => '顯示開頭為某個字的用戶:',
 );
 

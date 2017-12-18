@@ -96,25 +96,27 @@ class MercuryApiArticleHandler {
 	}
 
 	public static function getFeaturedVideoDetails( Title $title ): array {
-		$featuredVideo = ArticleVideoContext::getFeaturedVideoData( $title->getPrefixedDBkey() );
+		$featuredVideo = ArticleVideoContext::getFeaturedVideoData( $title->getArticleID() );
 
 		if ( !empty( $featuredVideo ) ) {
-			return [
+			$featuredVideoData = [
 				'type' => 'video',
 				'context' => 'featured-video',
-				'url' => $featuredVideo['thumbnailUrl'],
-				'provider' => 'ooyala-v4',
 				'embed' => [
-					'provider' => 'ooyala-v4',
 					'jsParams' => [
 						'dfpContentSourceId' => F::app()->wg->AdDriverDfpOoyalaContentSourceId,
-						'videoId' => $featuredVideo['videoId']
-					]
-				],
-				'title' => $featuredVideo['title'],
-				'duration' => $featuredVideo['duration'],
-				'labels' => $featuredVideo['labels']
+					],
+				]
 			];
+
+			$featuredVideoData['provider'] = 'jwplayer';
+			$featuredVideoData['embed']['provider'] = 'jwplayer';
+			$featuredVideoData['embed']['jsParams']['videoId'] = $featuredVideo['mediaId'];
+			$featuredVideoData['embed']['jsParams']['playlist'] = $featuredVideo['playlist'];
+			$featuredVideoData['embed']['jsParams']['recommendedVideoPlaylist'] = $featuredVideo['recommendedVideoPlaylist'];
+			$featuredVideoData['metadata'] = $featuredVideo['metadata'];
+
+			return $featuredVideoData;
 		}
 
 		return [];

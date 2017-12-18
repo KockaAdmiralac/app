@@ -2,11 +2,12 @@
 define('ext.wikia.adEngine.tracking.adInfoTracker',  [
 	'ext.wikia.adEngine.adTracker',
 	'ext.wikia.adEngine.slot.service.slotRegistry',
+	'ext.wikia.adEngine.tracking.pageLayout',
 	'wikia.browserDetect',
 	'wikia.log',
 	'wikia.window',
 	require.optional('ext.wikia.adEngine.ml.rabbit')
-], function (adTracker, slotRegistry, browserDetect, log, win, rabbit) {
+], function (adTracker, slotRegistry, pageLayout, browserDetect, log, win, rabbit) {
 	'use strict';
 
 	var logGroup = 'ext.wikia.adEngine.tracking.adInfoTracker';
@@ -63,15 +64,18 @@ define('ext.wikia.adEngine.tracking.adInfoTracker',  [
 			'bidder_10': transformBidderPrice('appnexusAst'),
 			'bidder_11': transformBidderPrice('rubicon_display'),
 			'bidder_12': transformBidderPrice('a9'),
+			'bidder_13': transformBidderPrice('onemobile'),
+			'bidder_14': transformBidderPrice('pubmatic'),
 			'product_chosen': creative.adProduct || 'unknown',
 			'product_lineitem_id': creative.lineItemId || '',
 			'creative_id': creative.creativeId || '',
 			'creative_size': (creative.creativeSize || '').replace('[', '').replace(']', '').replace(',', 'x'),
 			'viewport_height': win.innerHeight || 0,
-			'product_label': '',
 			'ad_status': creative.status || 'unknown',
 			'scroll_y': slotRegistry.getScrollY(slotName) || 0,
-			'rabbit': (rabbit && rabbit.getSerializedResults()) || ''
+			'rabbit': (rabbit && rabbit.getSerializedResults()) || '',
+			'page_width': win.document.body.scrollWidth || '',
+			'page_layout': pageLayout.getSerializedData(slotName) || ''
 		};
 
 		log(['prepareData', slotName, data], log.levels.debug, logGroup);
